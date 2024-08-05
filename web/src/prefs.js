@@ -131,5 +131,5 @@ Prefs._Defaults = {
   [Prefs.RefreshRate]: 5,
   [Prefs.SortDirection]: Prefs.SortAscending,
   [Prefs.SortMode]: Prefs.SortByName,
-  [Prefs.GroupByPath]: Prefs.GroupByPath,
+  [Prefs.GroupByPath]: false,
 };
