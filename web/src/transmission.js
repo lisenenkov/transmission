@@ -223,9 +223,9 @@ export class Transmission extends EventTarget {
       }
 
       // if not already, highlight the torrent
-      let row_element = event_.target;
-      while (row_element && !row_element.classList.contains('torrent')) {
-        row_element = row_element.parentNode;
+      const row_element = event_.target?.closest('.torrent');
+      if (!row_element) {
+        return;
       }
       const row = this._rows.find((r) => r.getElement() === row_element);
       if (row && !row.isSelected()) {
@@ -1126,60 +1126,7 @@ TODO: fix this when notifications get fixed
     }
 
     // change folder groups if necessary
-    const groupElements = {};
-    if (group_by_path) {
-      const currentFolders = [...list.querySelectorAll('li.folder')].reduce((acc, el, index) => {
-        if (el.dataset.path && !acc[el.dataset.path]) {
-          acc[el.dataset.path] = el;
-        } else {
-          // reserve for incorrect folder elements
-          acc[index + Math.random()] = el;
-        }
-
-        return acc;
-      }, {});
-
-      let lastElement = null;
-      const actualFolderSet = new Set();
-      for (const { row } of sorted_rows) {
-        const actualFolderName = row.getTorrent().getDownloadDir();
-        if (actualFolderSet.has(actualFolderName)) {
-          continue;
-        }
-
-        actualFolderSet.add(actualFolderName);
-
-        let groupElement = currentFolders[actualFolderName];
-        if (groupElement) {
-          delete currentFolders[actualFolderName];
-        } else {
-          const group = new TorrentRowGroup(actualFolderName);
-          groupElement = group.getElement();
-
-          groupElement.group = group;
-          groupElement.addEventListener('click', this._onRowGroupClicked.bind(this));
-        }
-
-        // set compact
-        groupElement.classList.toggle('compact', display_mode === Prefs.DisplayCompact);
-        groupElements[actualFolderName] = groupElement.querySelector(':scope>ul');
-
-        if (lastElement) {
-          lastElement.after(groupElement);
-        } else {
-          list.prepend(groupElement);
-        }
-        lastElement = groupElement;
-      }
-
-      // remove unnecessary folders
-      for (const folderElement of Object.values(currentFolders)) {
-        folderElement.remove();
-      }
-
-    } else {
-      groupElements[null] = list;
-    }
+    const groupElements = this.updateGroupElements(sorted_rows);
 
     const rows = [];
     const fragments = {};
@@ -1217,6 +1164,75 @@ TODO: fix this when notifications get fixed
     ) {
       this._dispatchSelectionChanged();
     }
+  }
+
+  updateGroupElements(sorted_rows) {
+
+    const { group_by_path, display_mode } = this.prefs;
+    const list = this.elements.torrent_list;
+
+    const groupElements = {};
+    if (group_by_path) {
+      const currentFolders = [...list.querySelectorAll('li.folder')].reduce((acc, el, index) => {
+        if (el.dataset.path && !acc[el.dataset.path]) {
+          acc[el.dataset.path] = { element: el, index };
+        } else {
+          // reserve for incorrect folder elements
+          console.log(el.dataset.path);
+          acc[index + Math.random()] = { element: el, index };
+        }
+
+        return acc;
+      }, {});
+
+      let lastElement = null;
+      let lastIndex = null;
+      const actualFolderSet = new Set();
+      for (const { row } of sorted_rows) {
+        const actualFolderName = row.getTorrent().getDownloadDir();
+        if (actualFolderSet.has(actualFolderName)) {
+          continue;
+        }
+
+        actualFolderSet.add(actualFolderName);
+
+        let groupElement = currentFolders[actualFolderName];
+        if (groupElement) {
+          delete currentFolders[actualFolderName];
+        } else {
+          const group = new TorrentRowGroup(actualFolderName);
+          groupElement = { element: group.getElement(), index: null };
+
+          groupElement.element.group = group;
+          groupElement.element.addEventListener('click', this._onRowGroupClicked.bind(this));
+        }
+
+        // set compact
+        groupElement.element.classList.toggle('compact', display_mode === Prefs.DisplayCompact);
+        groupElements[actualFolderName] = groupElement.element.querySelector(':scope>ul');
+
+        if (lastElement) {
+          if (groupElement.index === null || lastIndex !== null && groupElement.index < lastIndex) {
+            lastElement.after(groupElement.element);
+          }
+        } else if (groupElement.index === null) {
+          list.prepend(groupElement.element);
+        }
+        lastElement = groupElement.element;
+        if (groupElement.index !== null) {
+          lastIndex = groupElement.index;
+        }
+      }
+
+      // remove unnecessary folders
+      for (const folderElement of Object.values(currentFolders)) {
+        folderElement.remove();
+      }
+
+    } else {
+      groupElements[null] = list;
+    }
+    return groupElements;
   }
 
   setFilterTracker(sitename) {

@@ -503,14 +503,14 @@ export class Torrent extends EventTarget {
         break;
     }
 
-    if (groupByPath) {
-      const innerComparer = comparer;
-      comparer = (a, b) => this.compareByPath(a, b) || innerComparer(a, b);
-    }
-
     if (sortDirection === Prefs.SortDescending) {
       const innerComparer = comparer;
       comparer = (a, b) => -innerComparer(a, b);
+    }
+
+    if (groupByPath) {
+      const innerComparer = comparer;
+      comparer = (a, b) => this.compareByPath(a, b) || innerComparer(a, b);
     }
 
     return comparer;
