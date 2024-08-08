@@ -437,10 +437,10 @@ a {
       border-bottom: 1px solid var(--color-border-default);
       align-items: center;
       display: flex;
-      padding-left: 3px;
+      padding: 2px 0 2px 3px;
     }
 
-    .icon {
+    .folder-icon {
       --icon-size: 16px;
       // color the background svg fill
       background-color: var(--color-fg-primary);
@@ -469,7 +469,7 @@ a {
     }
 
     &.closed {
-      & .icon {
+      & .folder-icon {
         -webkit-mask-image: var(--folder-closed-image-url);
         mask-image: var(--folder-closed-image-url);
       }
@@ -478,6 +478,12 @@ a {
         display: none;
       }
     }
+
+    &:not(.compact) > .data {
+      padding-top: 7px;
+      padding-bottom: 7px;
+    }
+
   }
 
   .torrent {

@@ -16,7 +16,7 @@ export class TorrentRowGroup {
     root.append(folderData);
 
     const icon = document.createElement('div');
-    icon.classList.add('icon');
+    icon.classList.add('folder-icon');
     folderData.append(icon);
 
     const name = document.createElement('div');

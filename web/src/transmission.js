@@ -781,7 +781,16 @@ TODO: fix this when notifications get fixed
 
   _onRowGroupClicked(event_) {
     event_.currentTarget.classList.toggle("closed");
+
+    if (this.popup && this.popup.name !== 'inspector') {
+      this.setCurrentPopup(null);
+    }
+
     event_.stopPropagation();
+    event_.preventDefault();
+
+    this._setSelectedRow(null);
+    this._last_torrent_clicked = null;
   }
 
   _onRowClicked(event_) {
