@@ -3,7 +3,6 @@ import { setTextContent } from './utils.js';
 export class TorrentRowGroup {
   constructor(path) {
     this._element = TorrentRowGroup._create(path);
-
   }
 
   static _create(path) {
@@ -33,5 +32,4 @@ export class TorrentRowGroup {
   getElement() {
     return this._element;
   }
-
 }

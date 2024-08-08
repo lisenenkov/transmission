@@ -407,7 +407,9 @@ export class Transmission extends EventTarget {
   }
 
   getAllTorrentsPaths() {
-    const paths = [...new Set(Object.values(this._torrents).map(v => v.getDownloadDir()))];
+    const paths = [
+      ...new Set(Object.values(this._torrents).map((v) => v.getDownloadDir())),
+    ];
     return [...paths.sort((a, b) => a.localeCompare(b))];
   }
 
@@ -780,7 +782,7 @@ TODO: fix this when notifications get fixed
   }
 
   _onRowGroupClicked(event_) {
-    event_.currentTarget.classList.toggle("closed");
+    event_.currentTarget.classList.toggle('closed');
 
     if (this.popup && this.popup.name !== 'inspector') {
       this.setCurrentPopup(null);
@@ -1013,7 +1015,7 @@ TODO: fix this when notifications get fixed
       torrents,
       this.prefs.sort_mode,
       this.prefs.sort_direction,
-      this.prefs.group_by_path
+      this.prefs.group_by_path,
     );
     for (const [index, tor] of torrents.entries()) {
       rows[index] = id2row[tor.getId()];
@@ -1021,7 +1023,8 @@ TODO: fix this when notifications get fixed
   }
 
   _refilter(rebuildEverything) {
-    const { sort_mode, sort_direction, filter_mode, group_by_path, display_mode } = this.prefs;
+    const { sort_mode, sort_direction, filter_mode, group_by_path } =
+      this.prefs;
     const filter_tracker = this.filterTracker;
     const renderer = this.torrentRenderer;
     const list = this.elements.torrent_list;
@@ -1123,14 +1126,14 @@ TODO: fix this when notifications get fixed
           dirty_rows[di].getTorrent(),
           sort_mode,
           sort_direction,
-          group_by_path
+          group_by_path,
         );
         push_clean = c < 0;
       }
 
       sorted_rows.push({
         push_clean,
-        row: push_clean ? clean_rows[ci++] : dirty_rows[di++]
+        row: push_clean ? clean_rows[ci++] : dirty_rows[di++],
       });
     }
 
@@ -1140,7 +1143,9 @@ TODO: fix this when notifications get fixed
     const rows = [];
     const fragments = {};
     for (const { push_clean, row } of sorted_rows) {
-      const rowFolder = group_by_path ? row.getTorrent().getDownloadDir() : null;
+      const rowFolder = group_by_path
+        ? row.getTorrent().getDownloadDir()
+        : null;
 
       const e = row.getElement();
       if (push_clean) {
@@ -1165,7 +1170,6 @@ TODO: fix this when notifications get fixed
     this._rows = rows;
     this.dirtyTorrents.clear();
 
-
     this._updateStatusbar();
     if (
       old_sel_count !== countSelectedRows() ||
@@ -1176,23 +1180,25 @@ TODO: fix this when notifications get fixed
   }
 
   updateGroupElements(sorted_rows) {
-
     const { group_by_path, display_mode } = this.prefs;
     const list = this.elements.torrent_list;
 
     const groupElements = {};
     if (group_by_path) {
-      const currentFolders = [...list.querySelectorAll('li.folder')].reduce((acc, el, index) => {
-        if (el.dataset.path && !acc[el.dataset.path]) {
-          acc[el.dataset.path] = { element: el, index };
-        } else {
-          // reserve for incorrect folder elements
-          console.log(el.dataset.path);
-          acc[index + Math.random()] = { element: el, index };
-        }
+      const currentFolders = [...list.querySelectorAll('li.folder')].reduce(
+        (acc, el, index) => {
+          if (el.dataset.path && !acc[el.dataset.path]) {
+            acc[el.dataset.path] = { element: el, index };
+          } else {
+            // reserve for incorrect folder elements
+            console.log(el.dataset.path);
+            acc[index + Math.random()] = { element: el, index };
+          }
 
-        return acc;
-      }, {});
+          return acc;
+        },
+        {},
+      );
 
       let lastElement = null;
       let lastIndex = null;
@@ -1213,15 +1219,25 @@ TODO: fix this when notifications get fixed
           groupElement = { element: group.getElement(), index: null };
 
           groupElement.element.group = group;
-          groupElement.element.addEventListener('click', this._onRowGroupClicked.bind(this));
+          groupElement.element.addEventListener(
+            'click',
+            this._onRowGroupClicked.bind(this),
+          );
         }
 
         // set compact
-        groupElement.element.classList.toggle('compact', display_mode === Prefs.DisplayCompact);
-        groupElements[actualFolderName] = groupElement.element.querySelector(':scope>ul');
+        groupElement.element.classList.toggle(
+          'compact',
+          display_mode === Prefs.DisplayCompact,
+        );
+        groupElements[actualFolderName] =
+          groupElement.element.querySelector(':scope>ul');
 
         if (lastElement) {
-          if (groupElement.index === null || lastIndex !== null && groupElement.index < lastIndex) {
+          if (
+            groupElement.index === null ||
+            (lastIndex !== null && groupElement.index < lastIndex)
+          ) {
             lastElement.after(groupElement.element);
           }
         } else if (groupElement.index === null) {
@@ -1237,7 +1253,6 @@ TODO: fix this when notifications get fixed
       for (const folderElement of Object.values(currentFolders)) {
         folderElement.remove();
       }
-
     } else {
       groupElements[null] = list;
     }

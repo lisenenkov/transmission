@@ -34,7 +34,7 @@ export class MoveDialog extends EventTarget {
     while (this.elements.datalist.firstChild) {
       this.elements.datalist.firstChild.remove();
     }
-    for(const path of paths){
+    for (const path of paths) {
       const option = document.createElement('option');
       option.value = path;
       this.elements.datalist.append(option);

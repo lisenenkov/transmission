@@ -433,7 +433,7 @@ a {
   -webkit-user-select: none;
 
   .folder {
-    & > .data {
+    > .data {
       border-bottom: 1px solid var(--color-border-default);
       align-items: center;
       display: flex;
@@ -464,17 +464,17 @@ a {
       padding-left: 10px;
     }
 
-    & > ul {
-      padding: 0 0;
+    > ul {
+      padding: 0;
     }
 
     &.closed {
-      & .folder-icon {
+      .folder-icon {
         -webkit-mask-image: var(--folder-closed-image-url);
         mask-image: var(--folder-closed-image-url);
       }
 
-      & > ul {
+      > ul {
         display: none;
       }
     }
@@ -483,7 +483,6 @@ a {
       padding-top: 7px;
       padding-bottom: 7px;
     }
-
   }
 
   .torrent {

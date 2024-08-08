@@ -118,7 +118,7 @@ Prefs.SortByState = 'state';
 Prefs.SortDescending = 'descending';
 Prefs.SortDirection = 'sort-direction';
 Prefs.SortMode = 'sort-mode';
-Prefs.GroupByPath = "group-by-path";
+Prefs.GroupByPath = 'group-by-path';
 
 Prefs._Defaults = {
   [Prefs.AltSpeedEnabled]: false,
