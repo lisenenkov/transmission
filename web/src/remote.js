@@ -12,7 +12,7 @@ export const RPC = {
   _QueueMoveDown: 'queue-move-down',
   _QueueMoveTop: 'queue-move-top',
   _QueueMoveUp: 'queue-move-up',
-  _Root: '../rpc',
+  _Root: '../rpc.json',
   _TurtleDownSpeedLimit: 'alt-speed-down',
   _TurtleState: 'alt-speed-enabled',
   _TurtleUpSpeedLimit: 'alt-speed-up',
@@ -39,9 +39,9 @@ export class Remote {
 
     let response_argument = null;
     fetch(RPC._Root, {
-      body: JSON.stringify(data),
+      //body: JSON.stringify(data),
       headers,
-      method: 'POST',
+      method: 'GET',
     })
       .then((response) => {
         response_argument = response;
