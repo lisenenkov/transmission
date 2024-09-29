@@ -378,11 +378,12 @@ export class Torrent extends EventTarget {
   /**
    * @param state one of Prefs.Filter*
    * @param tracker tracker name
+   * @param tracker download dir
    * @param search substring to look for, or null
    * @param labels array of labels. Empty array matches all.
    * @return true if it passes the test, false if it fails
    */
-  test(state, tracker, search, labels) {
+  test(state, tracker, downloadDir, search, labels) {
     // filter by state...
     let pass = this.testState(state);
 
@@ -403,6 +404,10 @@ export class Torrent extends EventTarget {
     // maybe filter by tracker...
     if (pass && tracker && tracker.length > 0) {
       pass = this.getCollatedTrackers().includes(tracker);
+    }
+
+    if (pass && downloadDir) {
+      pass = this.getDownloadDir().startsWith(downloadDir);
     }
 
     return pass;

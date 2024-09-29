@@ -73,6 +73,14 @@ export class Transmission extends EventTarget {
         );
       });
 
+    document
+      .querySelector('#filter-download-dir')
+      .addEventListener('change', (event_) => {
+        this.setFilterDownloadDir(
+          event_.target.value === 'all' ? null : event_.target.value,
+        );
+      });
+
     this.action_manager.addEventListener('change', (event_) => {
       for (const element of document.querySelectorAll(
         `[data-action="${event_.action}"]`,
@@ -1003,6 +1011,31 @@ TODO: fix this when notifications get fixed
     }
   }
 
+  _updateFilterDownloadDirSelect() {
+    const downloadDirs = this._getDownloadDirs();
+
+    const selectNode = document.createElement('select');
+
+    const optionNodeAll = document.createElement('option');
+    optionNodeAll.selected = !this.filterDownloadDir;
+    optionNodeAll.value = 'all';
+    optionNodeAll.text = 'All';
+    selectNode.append(optionNodeAll);
+
+    for (const downloadDir of downloadDirs) {
+      const optionNode = document.createElement('option');
+      optionNode.selected = this.filterDownloadDir !== downloadDir;
+      optionNode.value = downloadDir;
+      optionNode.text = downloadDir;
+      selectNode.append(optionNode);
+    }
+
+    const string = selectNode.innerHTML;
+    if (!this.filterDownloadDirStr || this.filterDownloadDirStr !== string) {
+      this.filterDownloadDirStr = string;
+      document.querySelector("#filter-download-dir").innerHTML = string;
+    }
+  }
   /// FILTER
 
   sortRows(rows) {
@@ -1026,6 +1059,7 @@ TODO: fix this when notifications get fixed
     const { sort_mode, sort_direction, filter_mode, group_by_path } =
       this.prefs;
     const filter_tracker = this.filterTracker;
+    const filter_download_dir = this.filterDownloadDir;
     const renderer = this.torrentRenderer;
     const list = this.elements.torrent_list;
 
@@ -1050,6 +1084,7 @@ TODO: fix this when notifications get fixed
     const old_sel_count = countSelectedRows();
 
     this._updateFilterSelect();
+    this._updateFilterDownloadDirSelect();
 
     clearTimeout(this.refilterTimer);
     delete this.refilterTimer;
@@ -1084,7 +1119,7 @@ TODO: fix this when notifications get fixed
     for (const row of dirty_rows) {
       const id = row.getTorrentId();
       const t = this._torrents[id];
-      if (t && t.test(filter_mode, filter_tracker, filter_text, labels)) {
+      if (t && t.test(filter_mode, filter_tracker, filter_download_dir, filter_text, labels)) {
         temporary.push(row);
       }
       this.dirtyTorrents.delete(id);
@@ -1095,7 +1130,7 @@ TODO: fix this when notifications get fixed
     // but don't already have a row
     for (const id of this.dirtyTorrents.values()) {
       const t = this._torrents[id];
-      if (t && t.test(filter_mode, filter_tracker, filter_text, labels)) {
+      if (t && t.test(filter_mode, filter_tracker, filter_download_dir, filter_text, labels)) {
         const row = new TorrentRow(renderer, this, t);
         const e = row.getElement();
         e.row = row;
@@ -1251,7 +1286,7 @@ TODO: fix this when notifications get fixed
 
       // remove unnecessary folders
       for (const folderElement of Object.values(currentFolders)) {
-        folderElement.remove();
+        folderElement.element.remove();
       }
     } else {
       groupElements[null] = list;
@@ -1280,6 +1315,22 @@ TODO: fix this when notifications get fixed
     return counts;
   }
 
+  setFilterDownloadDir(folder) {
+    this.filterDownloadDir = folder;
+    this.refilterAllSoon();
+  }
+
+
+  _getDownloadDirs() {
+    const counts = {};
+
+    for (const torrent of this._getAllTorrents()) {
+      const downloadDir = torrent.getDownloadDir();
+      counts[downloadDir] = (counts[downloadDir] || 0) + 1;
+    }
+
+    return Object.keys(counts).sort();
+  }
   ///
 
   popupCloseListener(event_) {
